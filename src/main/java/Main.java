@@ -5,7 +5,6 @@ import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
 public class Main {
     public static void main(String[] args) {
@@ -27,10 +26,16 @@ public class Main {
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
             String line = reader.readLine();
             String[] httpRequest = line.split(" ", 0);
-            System.out.println(Arrays.toString(httpRequest));
-            if(httpRequest[1].equals("/")) {
+
+            if (httpRequest[1].equals("/")) {
                 clientSocket.getOutputStream().write(
                         "HTTP/1.1 200 OK\r\n\r\n".getBytes()
+                );
+            } else if (httpRequest[1].startsWith("/echo/")) {
+                String responseBody = httpRequest[1].substring("/echo/".length());
+                String response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + responseBody.length() + "\r\n\r\n" + responseBody;
+                clientSocket.getOutputStream().write(
+                        response.getBytes()
                 );
             } else clientSocket.getOutputStream().write(
                     "HTTP/1.1 404 Not Found\r\n\r\n".getBytes()
